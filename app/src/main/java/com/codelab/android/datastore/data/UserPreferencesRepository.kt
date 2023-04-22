@@ -18,6 +18,8 @@ package com.codelab.android.datastore.data
 
 import android.content.Context
 import androidx.core.content.edit
+import androidx.datastore.core.DataStore
+import com.codelab.android.datastore.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -34,7 +36,10 @@ enum class SortOrder {
 /**
  * Class that handles saving and retrieving user preferences
  */
-class UserPreferencesRepository private constructor(context: Context) {
+class UserPreferencesRepository private constructor(
+    private val userPreferencesStore: DataStore<UserPreferences>,
+    context: Context
+) {
 
     private val sharedPreferences =
         context.applicationContext.getSharedPreferences(USER_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -102,13 +107,13 @@ class UserPreferencesRepository private constructor(context: Context) {
         @Volatile
         private var INSTANCE: UserPreferencesRepository? = null
 
-        fun getInstance(context: Context): UserPreferencesRepository {
+        fun getInstance(context: Context, userPreferencesStore: DataStore<UserPreferences>): UserPreferencesRepository {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE?.let {
                     return it
                 }
 
-                val instance = UserPreferencesRepository(context)
+                val instance = UserPreferencesRepository(userPreferencesStore, context)
                 INSTANCE = instance
                 instance
             }
